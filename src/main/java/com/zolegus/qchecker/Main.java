@@ -10,7 +10,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author oleg.zherebkin
@@ -44,9 +46,7 @@ public class Main {
             return;
         }
 
-        // Составляем список каталогов по указанному пути
-        File directory = new File(BASE_PATH);
-        File[] rootDirectoryList = directory.listFiles();
+
         StringBuilder sb = new StringBuilder(1024);
         BufferedWriter reportWriter = null;
         Path pathToFile = Paths.get("./ticker-report.csv");
@@ -58,14 +58,20 @@ public class Main {
             e.printStackTrace();
         }
 
+        // Составляем список каталогов по указанному пути
+        File directory = new File(BASE_PATH);
+        File[] rootDirectoryList2 = directory.listFiles();
+        List<File> rootDirsList = Arrays.asList(rootDirectoryList2);
+        Collections.sort(rootDirsList);
 
-        for (int i = 0; i < rootDirectoryList.length; i++) {
-            if (rootDirectoryList[i].isDirectory()) {
+        for (int i = 0; i < rootDirsList.size(); i++) {
+            File curDir = rootDirsList.get(i);
+            if (curDir.isDirectory()) {
 
-                System.out.println(rootDirectoryList[i].getName());
+                System.out.println(curDir.getName());
                 // Читаем всю структуру файлов
                 ArrayList<File> ticksDataPathFiles = new ArrayList<>();
-                listf(rootDirectoryList[i].getAbsolutePath(), ticksDataPathFiles);
+                listf(curDir.getAbsolutePath(), ticksDataPathFiles);
                 // Сортируем на возростание
                 Collections.sort(ticksDataPathFiles);
                 boolean zeroflag = false;
@@ -90,7 +96,7 @@ public class Main {
                 }
                 // Сохраняем информацию в файл
                 sb.setLength(0);
-                sb.append(rootDirectoryList[i].getName()).append(";");
+                sb.append(curDir.getName()).append(";");
                 if (zeroflag) {
                     sb.append("ERROR DATA");
                     if (lastDate != null)
